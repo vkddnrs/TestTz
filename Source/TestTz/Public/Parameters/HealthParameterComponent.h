@@ -13,5 +13,8 @@ UCLASS()
 class TESTTZ_API UHealthParameterComponent : public UBaseParameterComponent
 {
 	GENERATED_BODY()
+
+private:
+     float Health = 0.0f;
 	
 };

@@ -13,16 +13,22 @@ class TESTTZ_API UBaseParameterComponent : public UActorComponent
 	GENERATED_BODY()
 
 public:	
-	// Sets default values for this component's properties
 	UBaseParameterComponent();
 
 protected:
-	// Called when the game starts
-	virtual void BeginPlay() override;
+	virtual void BeginPlay() override;          
 
 public:	
-	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+	float GetParameter() const { return Parameter; }
+
+
+protected:
+     
+     float Parameter = 0.0f;
+
+     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	float MaxParameter = 100.f;
 		
 };

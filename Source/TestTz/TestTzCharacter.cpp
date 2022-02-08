@@ -8,6 +8,9 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Parameters/HealthParameterComponent.h"
+#include "Parameters/SatietyParameterComponent.h"
+#include "Components/TextRenderComponent.h"
 
 //////////////////////////////////////////////////////////////////////////
 // ATestTzCharacter
@@ -41,10 +44,20 @@ ATestTzCharacter::ATestTzCharacter()
 	// Create a follow camera
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
-	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
+	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm	
 
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
+
+	HealthParameter = CreateDefaultSubobject<UHealthParameterComponent>("HealthParameter");
+	SatietyParameter = CreateDefaultSubobject<USatietyParameterComponent>("SatietyParameter");
+
+	HealthTextRenderComponent = CreateDefaultSubobject<UTextRenderComponent>("HealthTextRenderComponent");
+	SatietyTextRenderComponent = CreateDefaultSubobject<UTextRenderComponent>("SatietyTextRenderComponent");
+
+	HealthTextRenderComponent->SetupAttachment(GetRootComponent());
+	SatietyTextRenderComponent->SetupAttachment(GetRootComponent());
+
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -76,6 +89,26 @@ void ATestTzCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerIn
 	PlayerInputComponent->BindAction("ResetVR", IE_Pressed, this, &ATestTzCharacter::OnResetVR);
 }
 
+
+void ATestTzCharacter::Tick(float DeltaSeconds)
+{
+     Super::Tick(DeltaSeconds);
+     if(WasRecentlyRendered(0.5))
+     {
+          HealthTextRenderComponent->SetText(FText::FromString(FString::Printf(TEXT("%.0f"), HealthParameter->GetParameter())));
+          SatietyTextRenderComponent->SetText(FText::FromString(FString::Printf(TEXT("%.0f"), SatietyParameter->GetParameter())));
+     }
+}
+
+void ATestTzCharacter::BeginPlay()
+{
+     Super::BeginPlay();
+
+     ensure(HealthParameter);
+     ensure(HealthTextRenderComponent);
+     ensure(SatietyParameter);
+     ensure(SatietyTextRenderComponent);
+}
 
 void ATestTzCharacter::OnResetVR()
 {

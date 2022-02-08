@@ -18,6 +18,18 @@ class ATestTzCharacter : public ACharacter
 	/** Follow camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FollowCamera;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
+	     class UHealthParameterComponent* HealthParameter;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
+	     class USatietyParameterComponent* SatietyParameter;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
+	     class UTextRenderComponent* HealthTextRenderComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
+	     class UTextRenderComponent* SatietyTextRenderComponent;
 public:
 	ATestTzCharacter();
 
@@ -29,7 +41,11 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Camera)
 	float BaseLookUpRate;
 
+          virtual void Tick(float DeltaSeconds) override;
+
 protected:
+
+          virtual  void BeginPlay() override;
 
 	/** Resets HMD orientation in VR. */
 	void OnResetVR();
