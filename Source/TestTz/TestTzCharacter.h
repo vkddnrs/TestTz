@@ -6,6 +6,8 @@
 #include "GameFramework/Character.h"
 #include "TestTzCharacter.generated.h"
 
+
+
 UCLASS(config=Game)
 class ATestTzCharacter : public ACharacter
 {
@@ -20,16 +22,23 @@ class ATestTzCharacter : public ACharacter
 	class UCameraComponent* FollowCamera;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
-	     class UHealthParameterComponent* HealthParameter;
+	     class UHealthParameterComponent* HealthComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
-	     class USatietyParameterComponent* SatietyParameter;
+	     class USatietyParameterComponent* SatietyComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
 	     class UTextRenderComponent* HealthTextRenderComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
 	     class UTextRenderComponent* SatietyTextRenderComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
+	     class UWidgetComponent* HealthWidgetComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
+	     class UWidgetComponent* SatietyWidgetComponent;
+
 public:
 	ATestTzCharacter();
 
@@ -42,6 +51,8 @@ public:
 	float BaseLookUpRate;
 
           virtual void Tick(float DeltaSeconds) override;
+
+           
 
 protected:
 
@@ -79,10 +90,24 @@ protected:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	// End of APawn interface
 
+     UFUNCTION()
+	void SetSatiety(float Satiety);
+
+     UFUNCTION()
+          void SetHealth(float Health);
+
+     class UParameterBarWidget* HealthBarWidget;
+     class UParameterBarWidget* SatietyBarWidget;
+
 public:
 	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+
+private:
+     bool IsCameraActive = false;
+
+ 
 };
 

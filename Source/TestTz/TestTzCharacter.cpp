@@ -11,6 +11,9 @@
 #include "Parameters/HealthParameterComponent.h"
 #include "Parameters/SatietyParameterComponent.h"
 #include "Components/TextRenderComponent.h"
+#include "Components/WidgetComponent.h"
+#include "UI/ParameterBarWidget.h"
+
 
 //////////////////////////////////////////////////////////////////////////
 // ATestTzCharacter
@@ -49,14 +52,22 @@ ATestTzCharacter::ATestTzCharacter()
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
 
-	HealthParameter = CreateDefaultSubobject<UHealthParameterComponent>("HealthParameter");
-	SatietyParameter = CreateDefaultSubobject<USatietyParameterComponent>("SatietyParameter");
+	HealthComponent = CreateDefaultSubobject<UHealthParameterComponent>("HealthComponent");
+	SatietyComponent = CreateDefaultSubobject<USatietyParameterComponent>("SatietyComponent");
 
-	HealthTextRenderComponent = CreateDefaultSubobject<UTextRenderComponent>("HealthTextRenderComponent");
-	SatietyTextRenderComponent = CreateDefaultSubobject<UTextRenderComponent>("SatietyTextRenderComponent");
+	//HealthTextRenderComponent = CreateDefaultSubobject<UTextRenderComponent>("HealthTextRenderComponent");
+	//SatietyTextRenderComponent = CreateDefaultSubobject<UTextRenderComponent>("SatietyTextRenderComponent");
 
-	HealthTextRenderComponent->SetupAttachment(GetRootComponent());
-	SatietyTextRenderComponent->SetupAttachment(GetRootComponent());
+	//HealthTextRenderComponent->SetupAttachment(GetRootComponent());
+	//SatietyTextRenderComponent->SetupAttachment(GetRootComponent());
+
+	HealthWidgetComponent = CreateDefaultSubobject<UWidgetComponent>("HealthWidgetComponent");
+	SatietyWidgetComponent = CreateDefaultSubobject<UWidgetComponent>("SatietyWidgetComponent");
+	HealthWidgetComponent->SetupAttachment(GetRootComponent());
+	SatietyWidgetComponent->SetupAttachment(GetRootComponent());
+	HealthWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
+	SatietyWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
+
 
 }
 
@@ -89,25 +100,77 @@ void ATestTzCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerIn
 	PlayerInputComponent->BindAction("ResetVR", IE_Pressed, this, &ATestTzCharacter::OnResetVR);
 }
 
+void ATestTzCharacter::SetSatiety(float Satiety)
+{
+     //SatietyTextRenderComponent->SetText(FText::FromString(FString::Printf(TEXT("%.0f"), SatietyComponent->GetParameter())));
+
+     if(Satiety == -1)
+     {
+          SatietyBarWidget->SetParameterVisibility();
+          return;
+     }
+   
+     SatietyBarWidget->SetParameterPercent(SatietyComponent->GetParameterPercent(Satiety)); // SatietyComponent->GetParameterPercent(Satiety));
+     
+}
+
+void ATestTzCharacter::SetHealth(float Health)
+{
+     //HealthTextRenderComponent->SetText(FText::FromString(FString::Printf(TEXT("%.0f"), HealthComponent->GetParameter())));
+
+     if(Health == -1)
+     {
+          HealthBarWidget->SetParameterVisibility();
+          return;
+     }
+
+     HealthBarWidget->SetParameterPercent(HealthComponent->GetParameterPercent(Health));
+     
+
+}
+
 
 void ATestTzCharacter::Tick(float DeltaSeconds)
 {
      Super::Tick(DeltaSeconds);
-     if(WasRecentlyRendered(0.5))
-     {
-          HealthTextRenderComponent->SetText(FText::FromString(FString::Printf(TEXT("%.0f"), HealthParameter->GetParameter())));
-          SatietyTextRenderComponent->SetText(FText::FromString(FString::Printf(TEXT("%.0f"), SatietyParameter->GetParameter())));
-     }
+
+
+
+
+
 }
 
 void ATestTzCharacter::BeginPlay()
 {
      Super::BeginPlay();
 
-     ensure(HealthParameter);
-     ensure(HealthTextRenderComponent);
-     ensure(SatietyParameter);
-     ensure(SatietyTextRenderComponent);
+     ensure(HealthComponent);
+     //ensure(HealthTextRenderComponent);
+     ensure(SatietyComponent);
+     //ensure(SatietyTextRenderComponent);
+
+     ensure(HealthWidgetComponent);
+     ensure(SatietyWidgetComponent);    
+
+     HealthComponent->OnHealthChanged.AddDynamic(this, &ATestTzCharacter::SetHealth);
+     SatietyComponent->OnSatietyChanged.AddDynamic(this, &ATestTzCharacter::SetSatiety);
+
+
+     // TODO свести параметры в массив и обрабатывать их в цикле.
+     HealthBarWidget = Cast<UParameterBarWidget>(HealthWidgetComponent->GetUserWidgetObject());
+     SatietyBarWidget = Cast<UParameterBarWidget>(SatietyWidgetComponent->GetUserWidgetObject());
+     HealthBarWidget->SetParameterColor(FLinearColor::Green);
+     SatietyBarWidget->SetParameterColor(FLinearColor::Yellow);
+     HealthBarWidget->SetSeeingPlayer(Controller);
+     SatietyBarWidget->SetSeeingPlayer(Controller);
+     HealthBarWidget->SetParameterVisibility();
+     SatietyBarWidget->SetParameterVisibility();
+
+
+     
+     SetHealth(HealthComponent->GetParameter());
+     SetSatiety(SatietyComponent->GetParameter());
+
 }
 
 void ATestTzCharacter::OnResetVR()

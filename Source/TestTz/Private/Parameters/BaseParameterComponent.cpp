@@ -5,22 +5,23 @@
 
 UBaseParameterComponent::UBaseParameterComponent()
 {
-	PrimaryComponentTick.bCanEverTick = true;
-
+	PrimaryComponentTick.bCanEverTick = false;
 }
 
 
 void UBaseParameterComponent::BeginPlay()
 {
 	Super::BeginPlay();
-
-	Parameter = MaxParameter;
 }
 
 
 void UBaseParameterComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+}
 
+float UBaseParameterComponent::GetParameterPercent(float Param) const
+{
+     return Param / MaxParameter;
 }
 
